@@ -16,6 +16,12 @@ Route::get('/tae', function () {
     return view('tae');
 });
 
+Route::get('/bilyar', function () {
+    return view('bilyar');
+});
+
+
+
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');

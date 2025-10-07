@@ -42,9 +42,8 @@
     * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
 
     body {
-      background: linear-gradient(135deg, #ff7e00, #ff9a00, #ffb347, #ffcc33);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
+      background: url('https://i.ibb.co/wrst9scz/unnamed.png') center center / cover no-repeat fixed;
+      animation: none;
       overflow-x: hidden;
     }
 
@@ -310,13 +309,21 @@
           <div id="letters" class="grid grid-cols-7 gap-2"></div>
         </div>
 
+        <!-- PLAY BUTTON (above Reset & Lucky Pick) -->
+        <div class="flex justify-center mb-3">
+          <button onclick="playTicket()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg py-3 px-8 transition-all font-semibold shadow-lg flex items-center gap-2">
+            <i data-feather="play"></i>
+            Play
+          </button>
+        </div>
+
         <div class="flex gap-3 justify-center">
           <button onclick="resetTicket()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg py-3 px-6 transition-colors font-medium">Reset</button>
           <button onclick="luckyPick()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg py-3 px-6 transition-all font-medium shadow-lg">Lucky Pick</button>
         </div>
       </div>
 
-      <!-- SUBSCRIPTION -->
+      <!-- SUBSCRIPTION (now contains Ticket History at the bottom) -->
       <div class="bg-white rounded-2xl shadow-2xl p-6 border border-gray-200 card-hover">
         <div class="flex items-center mb-4">
           <div class="p-2 bg-indigo-100 rounded-lg mr-3"><i data-feather="credit-card" class="text-indigo-600 w-5 h-5"></i></div>
@@ -333,6 +340,19 @@
           <button onclick="purchaseNow()" class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg py-3 transition-all font-medium shadow-lg">Purchase Now</button>
         </div>
         <button onclick="cancelPlan()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg py-3 transition-colors font-medium">Cancel</button>
+
+        <!-- Ticket History placed below Cancel -->
+        <hr class="border-gray-200 my-4">
+        <div class="flex items-center mb-3">
+          <div class="p-2 bg-indigo-100 rounded-lg mr-3"><i data-feather="clock" class="text-indigo-600 w-5 h-5"></i></div>
+          <h2 class="text-gray-800 font-bold text-lg">Ticket History</h2>
+        </div>
+        <div id="ticketHistoryList" class="space-y-3 max-h-64 overflow-auto pr-2">
+          <!-- history items appear here -->
+        </div>
+        <div class="mt-3 text-right">
+          <button onclick="clearHistory()" class="text-sm text-gray-600 hover:text-red-600 underline">Clear History</button>
+        </div>
       </div>
     </div>
 <!-- LOGO -->
@@ -534,6 +554,70 @@ function luckyPick() {
         alert('Please select a color');
       }
     }
+
+    // --- PLAY BUTTON LOGIC ---
+    function playTicket() {
+      if (picks.length !== 4) {
+        alert("Kumpletuhin muna ang 4 na letra bago mag-Play.");
+        return;
+      }
+      if (!selectedColor && !getAppliedColor()) {
+        alert("Pumili at i-apply muna ang kulay bago mag-Play.");
+        return;
+      }
+
+      const letters = picks.join("");
+      const colorHex = selectedColor || getAppliedColor();
+      const colorName = getColorNameByHex(colorHex);
+      const when = new Date().toLocaleString('en-PH');
+
+      // Render item to history list
+      const list = document.getElementById("ticketHistoryList");
+      const item = document.createElement("div");
+      item.className = "flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl p-3";
+      item.innerHTML = `
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg font-bold bg-white border">${letters}</span>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">Letters: ${letters}</div>
+            <div class="text-xs text-gray-500">${when}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-700">${colorName}</span>
+          <div class="w-6 h-6 rounded border" style="background:${colorHex}"></div>
+        </div>
+      `;
+      list.prepend(item);
+      triggerConfetti();
+    }
+
+    function getAppliedColor() {
+      // read from one of the color backgrounds if already applied
+      const bg = document.querySelector('#colorBackgrounds div[data-index="1"]');
+      const style = bg ? bg.style.backgroundColor : "";
+      return style && style !== "transparent" ? rgbToHex(style) : null;
+    }
+
+    function getColorNameByHex(hex) {
+      if (!hex) return "N/A";
+      const norm = hex.toUpperCase();
+      const found = colors.find(c => c.hex.toUpperCase() === norm);
+      return found ? found.name : norm;
+    }
+
+    function rgbToHex(rgb) {
+      // supports formats like 'rgb(255, 0, 0)' returned by style.backgroundColor
+      const m = rgb.replace(/\s+/g,'').match(/^rgb\((\d+),(\d+),(\d+)\)$/i);
+      if (!m) return rgb; // already hex or unexpected
+      const toHex = (n) => ('0' + parseInt(n,10).toString(16)).slice(-2);
+      return `#${toHex(m[1])}${toHex(m[2])}${toHex(m[3])}`.toUpperCase();
+    }
+
+    function clearHistory() {
+      document.getElementById("ticketHistoryList").innerHTML = "";
+    }
+    // --- end PLAY BUTTON LOGIC ---
 
     // Barcode functions (kept same)
     function resetBarcode() { document.getElementById("barcodeInput").value = ""; }
