@@ -247,11 +247,133 @@
         0 14px 26px rgba(29,78,216,.45),
         inset 0 1px 2px rgba(255,255,255,.25);
     }
+
+    /* ===== Header (added) ===== */
+    .glass-header{
+      background: linear-gradient(to right, rgba(17,24,39,.75), rgba(17,24,39,.55));
+      backdrop-filter: blur(8px) saturate(120%);
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+    .header-gloss:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: radial-gradient(120% 80% at -10% -40%, rgba(255,255,255,.25), rgba(255,255,255,0) 60%);
+      pointer-events:none;
+    }
+    .menu-card{
+      background: rgba(17,24,39,.95);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      box-shadow: 0 18px 30px rgba(0,0,0,.35);
+    }
+
+    /* ===== 3D + Shine username (ADDED) ===== */
+    .shine-3d{
+      font-weight: 900;
+      letter-spacing: .3px;
+      /* moving highlight across text */
+      background: linear-gradient(90deg,
+        rgba(255,255,255,.75) 0%,
+        #ffffff 25%,
+        #ffe08a 45%,
+        #ffffff 60%,
+        rgba(255,255,255,.75) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: shineMove 2.6s linear infinite;
+      /* 3D depth + soft glow */
+      text-shadow:
+        0 1px 0 rgba(0,0,0,.35),
+        0 2px 0 rgba(0,0,0,.35),
+        0 8px 18px rgba(0,0,0,.5),
+        0 0 18px rgba(255, 232, 133, .35);
+    }
+    @keyframes shineMove{
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
   </style>
 </head>
 <body class="text-white font-sans bg-black">
 
   <div class="bg-animated"></div>
+
+  <!-- ===== Sticky Header (with 3D shiny username, avatar removed) ===== -->
+  <header class="glass-header sticky top-0 z-50">
+    <div class="relative header-gloss">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="h-14 flex items-center justify-between">
+          <!-- Left: Brand -->
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400/80 to-cyan-500/80 ring-2 ring-white/10 shadow-lg shadow-cyan-900/30"></div>
+            <div class="leading-tight">
+              <div class="text-sm uppercase tracking-widest text-white/70">BILYARAN</div>
+            </div>
+          </div>
+
+          <!-- Middle: Quick links (placeholders) -->
+          <nav class="hidden md:flex items-center gap-4 text-sm text-gray-200">
+            <a href="#" class="px-3 py-1.5 rounded-lg hover:bg-white/10 transition">Home</a>
+            <a href="#" class="px-3 py-1.5 rounded-lg hover:bg-white/10 transition">Matches</a>
+            <a href="#" class="px-3 py-1.5 rounded-lg hover:bg-white/10 transition">My Bets</a>
+            <a href="#" class="px-3 py-1.5 rounded-lg hover:bg-white/10 transition">Support</a>
+          </nav>
+
+          <!-- Right: Balance mirror + Notifications + Account -->
+          <div class="flex items-center gap-2">
+            <!-- Compact balance badge (read-only mirror text) -->
+            <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-yellow-500/15 ring-1 ring-yellow-400/30 text-yellow-300 text-xs font-bold">
+              <span class="opacity-80">BALANCE</span>
+              <span id="header-balance" class="tracking-wide">5000</span>
+            </div>
+
+            <!-- Notifications -->
+            <button class="relative p-2 rounded-lg hover:bg-white/10 transition" aria-label="Notifications">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.25 18.75a1.5 1.5 0 11-3 0m8.25-1.5H4.5l1.2-1.2a2.25 2.25 0 00.66-1.59V10.5a5.25 5.25 0 1110.5 0v2.46c0 .6.24 1.18.66 1.6l1.29 1.19z"/>
+              </svg>
+              <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-gray-900"></span>
+            </button>
+
+            <!-- Account dropdown (avatar removed; 3D shiny username) -->
+            <div class="relative">
+              <button id="account-btn" class="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-white/10 transition">
+                <div class="text-left">
+                  <div class="text-[11px] leading-tight opacity-80 hidden sm:block">Signed in as</div>
+                  <div id="account-name" class="shine-3d text-base leading-tight">Account Name</div>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-70" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.206l3.71-3.975a.75.75 0 111.08 1.04l-4.24 4.54a.75.75 0 01-1.08 0l-4.24-4.54a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              <!-- Dropdown menu -->
+              <div id="account-menu" class="menu-card absolute right-0 mt-2 w-56 p-2 hidden">
+                <div class="px-3 py-2">
+                  <div class="text-xs opacity-70">Logged in as</div>
+                  <div class="shine-3d text-lg" id="account-name-menu">Account Name</div>
+                </div>
+                <hr class="border-white/10 my-1" />
+                <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-sm">
+                  <span>Profile</span>
+                </a>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-sm">
+                  <span>Settings</span>
+                </a>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-sm text-red-300">
+                  <span>Logout</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- ===== End Header ===== -->
 
   <div class="flex justify-center gap-4 p-4">
     <!-- Left Slideshow -->
@@ -633,6 +755,32 @@
       });
 
       updatePickedMarket(pickedMarket);
+
+      // ===== Header small helpers =====
+      // Mirror the big balance into header badge once at load:
+      const bigBalanceEl = document.querySelector('.text-center.text-yellow-400.font-bold.text-lg.mb-4');
+      if (bigBalanceEl) {
+        const match = bigBalanceEl.textContent.match(/BALANCE:\s*([\d.,]+)/i);
+        if (match) document.getElementById('header-balance').textContent = match[1];
+      }
+
+      // Example: set account name (replace with real username when you wire auth)
+      const name = 'AMOK';
+      document.getElementById('account-name').textContent = name;
+      document.getElementById('account-name-menu').textContent = name;
+
+      // Dropdown toggle
+      const btn = document.getElementById('account-btn');
+      const menu = document.getElementById('account-menu');
+      btn.addEventListener('click', () => {
+        menu.classList.toggle('hidden');
+      });
+      // click outside to close
+      document.addEventListener('click', (e)=>{
+        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+          menu.classList.add('hidden');
+        }
+      });
     };
 
     function updatePickedMarket(mkt){

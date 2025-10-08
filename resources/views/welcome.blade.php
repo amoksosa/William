@@ -42,7 +42,7 @@
     * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
 
     body {
-      background: url('https://i.ibb.co/wrst9scz/unnamed.png') center center / cover no-repeat fixed;
+      background: url('https://i.ibb.co/p62f5Ws3/bagong-box2.png') center center / cover no-repeat fixed;
       animation: none;
       overflow-x: hidden;
     }
