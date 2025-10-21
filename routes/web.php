@@ -20,6 +20,10 @@ Route::get('/bilyar', function () {
     return view('bilyar');
 });
 
+Route::get('/koya', function () {
+    return view('koya');
+});
+
 
 
 Route::view('dashboard', 'dashboard')

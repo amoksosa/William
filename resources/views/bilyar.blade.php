@@ -14,7 +14,6 @@
       /* 3D Logro defaults */
       --logro-bubble: 22px;   /* diameter ng bola sa logrohan */
       --logro-step: 10px;     /* kapal ng isang “patong” sa Z */
-      --logro-tilt: 34deg;    /* default rotateX ng rail (naka higa) */
       --logro-rail-h: 48px;   /* taas ng rail (visual only) */
     }
 
@@ -84,7 +83,7 @@
     }
     .toggle-btn::before{ content:""; position:absolute; inset:0; background:var(--gloss); mix-blend-mode:screen; border-radius:12px; pointer-events:none; transform:translateZ(18px); }
     .toggle-btn:hover{ transform:translateZ(10px) translateY(-2px); filter:saturate(110%); }
-    .toggle-btn:active{ transform:translateZ(4px) translateY(1px); box-shadow:0 6px 12px rgba(0,0,0,.45), inset 0 2px 4px rgba(0,0,0,.35); }
+    .toggle-btn:active{ transform:translateZ(4px) translateY(1px); box-shadow:0 6px 12px rgba(0,0,0,.45), inset 0 2px 4px rgba(255,255,255,.25); }
     .toggle-btn.red{ background:linear-gradient(180deg,#b91c1c 0%,#7f1d1d 100%); box-shadow:0 14px 26px rgba(185,28,28,.45), inset 0 1px 2px rgba(255,255,255,.25); }
     .toggle-btn.blue{ background:linear-gradient(180deg,#1d4ed8 0%,#1e3a8a 100%); box-shadow:0 14px 26px rgba(29,78,216,.45), inset 0 1px 2px rgba(255,255,255,.25); }
 
@@ -102,10 +101,24 @@
     @keyframes shineMove{ 0%{background-position:0% center} 100%{background-position:200% center} }
     .brand-logo{ filter:drop-shadow(0 0 6px rgba(16,185,129,.7)); }
 
+    /* ===== Balance pill (center) ===== */
+    .balance-pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 10px; border-radius:9999px;
+      background:rgba(250,204,21,.12);
+      border:1px solid rgba(250,204,21,.35);
+      box-shadow: var(--inner-shadow);
+      backdrop-filter: blur(2px) saturate(120%);
+      transform: translateZ(24px);
+    }
+    .balance-pill .amount{
+      font-weight:900; letter-spacing:.5px;
+      text-shadow:0 1px 0 rgba(0,0,0,.35), 0 8px 16px rgba(0,0,0,.35);
+    }
+
     /* ===================== LOGROHAN 3D ===================== */
     .logro-zone{ perspective: 1100px; overflow: visible; }
 
-    /* Default: naka-tilt (3D look), Hover: flatten (tanggal higa) */
     .logro-rail{
       position: relative;
       transform-style: preserve-3d;
@@ -119,7 +132,7 @@
       will-change: transform;
     }
     .logro-rail:hover{
-      transform: rotateX(0deg) translateY(0); /* flatten */
+      transform: rotateX(0deg) translateY(0);
       box-shadow: 0 16px 28px rgba(0,0,0,.38), inset 0 4px 10px rgba(255,255,255,.05);
     }
 
@@ -182,8 +195,9 @@
         0 2px 4px rgba(0,0,0,.45);
       will-change: transform, filter;
       transition: transform .15s ease, filter .15s ease;
-      font-size: 11px; font-weight: 900; color:#fff; /* number style */
+      font-size: 11px; font-weight: 900; color:#fff;
       text-shadow: 0 1px 0 rgba(0,0,0,.4), 0 1px 4px rgba(0,0,0,.6);
+      margin-bottom: 2px;
     }
     .logro-bubble::before{
       content:""; position:absolute; inset:-1px; border-radius:inherit;
@@ -216,7 +230,6 @@
     .logro-chip.red{ background:#ef4444; border:1px solid #7f1d1d; }
     .logro-chip.blue{ background:#3b82f6; border:1px solid #1e3a8a; }
 
-    /* Matches strip */
     .matches-pill{ white-space:nowrap; }
     .matches-pill.active{ outline:2px solid rgba(250,204,21,.9); background:rgba(250,204,21,.15); }
   </style>
@@ -252,9 +265,9 @@
           </nav>
 
           <div class="flex items-center gap-2">
-            <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-yellow-500/15 ring-1 ring-yellow-400/30 text-yellow-300 text-xs font-bold">
-              <span class="opacity-80">BALANCE</span>
-              <span id="header-balance" class="tracking-wide">5000</span>
+            
+            <div class="">
+              
             </div>
             <button class="relative p-2 rounded-lg hover:bg-white/10 transition" aria-label="Notifications">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -299,9 +312,23 @@
 
     <!-- Main Content -->
     <div class="relative z-10 max-w-lg w-full main-panel p-4 rounded-lg shadow-lg">
-      <div class="flex justify-between items-center mb-2 text-sm text-gray-300">
-        <div id="event-date"></div>
-        <div id="event-time"></div>
+      <!-- date | BALANCE | time -->
+      <div class="grid grid-cols-3 items-center mb-2 text-sm text-gray-300">
+        <div id="event-date" class="text-left"></div>
+
+        <!-- ⭐ Center Balance with Diamond -->
+        <div class="flex justify-center">
+          <div class="balance-pill text-yellow-300">
+            <!-- diamond icon -->
+            <svg class="w-4 h-4 opacity-90" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l3.5 5H20l-8 15L4 7h4.5L12 2zM8.5 7l3.5 10.5L15.5 7H8.5z"/>
+            </svg>
+            <span class="text-[11px] opacity-80 tracking-widest">BALANCE</span>
+            <span id="mid-balance" class="amount text-base">5,000</span>
+          </div>
+        </div>
+
+        <div id="event-time" class="text-right"></div>
       </div>
 
       <div class="mb-4">
@@ -365,11 +392,11 @@
       <div id="odds-panel" class="hidden mb-4">
         <div class="flex items-center justify-between mb-3">
           <div class="bg-red-800/70 border border-white/10 rounded-xl px-3 py-2">
-            <div class="text-[10px] uppercase tracking-widest text-gray-300">ODDS MERON</div>
+            <div class="text-[10px] uppercase tracking-widest text-gray-300">ODDS RED</div>
             <div class="text-xl font-extrabold" id="odds-meron-top"></div>
           </div>
           <div class="bg-blue-800/70 border border-white/10 rounded-xl px-3 py-2">
-            <div class="text-[10px] uppercase tracking-widest text-gray-300">ODDS WALA</div>
+            <div class="text-[10px] uppercase tracking-widest text-gray-300">ODDS BLUE</div>
             <div class="text-xl font-extrabold" id="odds-wala-top"></div>
           </div>
         </div>
@@ -414,7 +441,7 @@
           </div>
 
           <div class="space-y-2">
-            <div class="text-xs uppercase tracking-widest text-blue-300 font-bold">ODDS WALA</div>
+            <div class="text-xs uppercase tracking-widest text-blue-300 font-bold"></div>
             <div class="bg-gray-900/70 border border-white/10 rounded-lg p-3 text-sm">
               <div class="flex items-center justify-between">
                 <div>
@@ -429,8 +456,8 @@
             </div>
             <input id="odds-amount" type="number" value="50" class="w-full bg-gray-900/70 border border-white/10 rounded-lg p-2 text-sm" />
             <div class="grid grid-cols-2 gap-2">
-              <button id="btn-bet-meron" class="bg-red-800/80 border border-white/10 rounded-lg px-2 py-2 text-xs font-bold">BET MERON</button>
-              <button id="btn-bet-wala" class="bg-blue-800/80 border border-white/10 rounded-lg px-2 py-2 text-xs font-bold">BET WALA</button>
+              <button id="btn-bet-meron" class="bg-red-800/80 border border-white/10 rounded-lg px-2 py-2 text-xs font-bold">BET RED</button>
+              <button id="btn-bet-wala" class="bg-blue-800/80 border border-white/10 rounded-lg px-2 py-2 text-xs font-bold">BET BLUE</button>
             </div>
             <button id="btn-reset" class="w-full bg-gray-800/60 border border-white/10 rounded-lg px-2 py-2 text-xs">Reset</button>
           </div>
@@ -439,14 +466,21 @@
 
       <div class="text-center text-yellow-400 font-bold text-lg mb-2"></div>
 
-      <!-- 🔁 LOGROHAN (3D look, flatten on hover; now with numbers) -->
+      <!-- 🔁 LOGROHAN (Big Road logic + controls) -->
       <div class="bg-gray-900/50 border border-white/10 rounded-lg p-2 logro-zone">
         <div class="flex items-center justify-between mb-1">
           <div class="text-[11px] uppercase tracking-widest text-white/70">Logrohan</div>
           <div class="flex items-center gap-2 text-[10px]">
-            <div class="flex items-center gap-1"><span class="logro-chip red"></span><span class="opacity-70">Meron</span></div>
-            <div class="flex items-center gap-1"><span class="logro-chip blue"></span><span class="opacity-70">Wala</span></div>
+            <div class="flex items-center gap-1"><span class="logro-chip red"></span><span class="opacity-70">Red</span></div>
+            <div class="flex items-center gap-1"><span class="logro-chip blue"></span><span class="opacity-70">Blue</span></div>
           </div>
+        </div>
+
+        <div class="flex items-center gap-2 mb-2">
+          <button id="btn-win-meron" class="px-2 py-1 rounded bg-red-700/70 border border-white/10 text-xs font-bold hover:bg-red-700">+ Meron win</button>
+          <button id="btn-win-wala"  class="px-2 py-1 rounded bg-blue-700/70 border border-white/10 text-xs font-bold hover:bg-blue-700">+ Wala win</button>
+          <button id="btn-undo"      class="px-2 py-1 rounded bg-gray-700/70 border border-white/10 text-xs hover:bg-gray-700">Undo</button>
+          <button id="btn-clear"     class="px-2 py-1 rounded bg-gray-800/70 border border-white/10 text-xs hover:bg-gray-800">Clear</button>
         </div>
 
         <!-- 3D Rail -->
@@ -505,53 +539,76 @@
       document.getElementById('match-no').textContent = m.id;
       document.getElementById('player1-name').textContent = m.red;
       document.getElementById('player2-name').textContent = m.blue;
-      // highlight active pill
       document.querySelectorAll('#matches-strip .matches-pill').forEach(p=>{
         p.classList.toggle('active', Number(p.dataset.matchId)===m.id);
       });
     }
 
-    /* ======= LOGROHAN GENERATOR (R/B only, depth stack -> 3D) ======= */
-    function genLogrohan(cols = 48){
-      const out = [];
-      for(let i=0;i<cols;i++){
-        const depth = Math.floor(Math.random()*4)+1; // 1–4 height
-        const col = [];
-        for(let d=0; d<depth; d++){
-          const t = Math.random() < 0.5 ? 'R' : 'B'; // R or B only
-          col.push({ t, z:d }); // index for Z
+    /* ======= BIG ROAD LOGIC ======= */
+    const MAX_ROWS = 6;          // standard Big Road height
+    let results = [];            // sequence of 'R' / 'B'
+
+    function buildBigRoadColumns(seq, maxRows = MAX_ROWS){
+      const cols = [];
+      let i = 0;
+      while(i < seq.length){
+        const color = seq[i];
+        let j = i + 1;
+        while(j < seq.length && seq[j] === color) j++;
+        const runLen = j - i;
+
+        let left = runLen;
+        while(left > 0){
+          const take = Math.min(maxRows, left);
+          const col = Array.from({length: take}, () => ({ t: color }));
+          cols.push(col);
+          left -= take;
         }
-        out.push(col);
+        i = j;
       }
-      return out;
+      return cols;
     }
     function bubbleClass(t){ return t==='R' ? 'logro-red' : 'logro-blue'; }
 
-    // ✅ Numbered bubbles
-    function renderLogrohan(data){
+    function renderBigRoad(seq){
+      const data = buildBigRoadColumns(seq);
       const strip = document.getElementById('logro-strip');
       strip.innerHTML = '';
-      let seq = 1; // running number sa loob ng bilog
+      let seqNo = 1;
       data.forEach(col=>{
         const colDiv = document.createElement('div');
         colDiv.className = 'logro-col';
-        col.forEach(cell=>{
+        col.forEach((cell, idx)=>{
           const b = document.createElement('div');
-          b.className = `logro-bubble ${bubbleClass(cell.t)} mb-[2px]`;
-          b.style.setProperty('--z', `calc(var(--logro-step) * ${cell.z})`);
+          b.className = `logro-bubble ${bubbleClass(cell.t)}`;
+          b.style.setProperty('--z', `calc(var(--logro-step) * ${idx})`);
           b.style.transform = `translateZ(var(--z))`;
-          b.title = (cell.t === 'R' ? 'Meron' : 'Wala') + ` • #${seq}`;
-          b.textContent = seq; // <-- number sa loob
+          b.title = (cell.t === 'R' ? 'Meron' : 'Wala') + ` • #${seqNo}`;
+          b.textContent = seqNo++;
           colDiv.appendChild(b);
-          seq++;
         });
         strip.appendChild(colDiv);
       });
+      strip.scrollLeft = strip.scrollWidth;
+    }
+
+    function pushResult(side){
+      results.push(side === 'MERON' ? 'R' : 'B');
+      renderBigRoad(results);
+    }
+    function undoResult(){
+      results.pop();
+      renderBigRoad(results);
+    }
+    function clearResults(){
+      results = [];
+      renderBigRoad(results);
     }
 
     /* ===== Rest of app ===== */
-    let player1, player2, meronAmount, walaAmount, meronOdds, walaOdds;
+    let meronAmount, walaAmount, meronOdds, walaOdds;
     let pickedMarket="10-10";
+    let currentBalance = 5000; // you can hook this to real data
 
     function getRandomAmount(){ return Math.floor(Math.random()*(50000-10000+1))+10000; }
 
@@ -584,13 +641,20 @@
       el.addEventListener('mouseleave',()=>{ el.style.transform='rotateX(0) rotateY(0) translateY(0)'; });
     }
 
+    function renderBalance(){
+      const mid = document.getElementById('mid-balance');
+      const head = document.getElementById('header-balance');
+      if(mid)  mid.textContent = Number(currentBalance).toLocaleString();
+      if(head) head.textContent = Number(currentBalance).toLocaleString();
+    }
+
     window.onload=()=>{
       setDateTime();
 
       // Matches
       matches = genMatches(MATCH_COUNT);
       renderMatchesStrip();
-      setCurrentMatch(29); // default like your label
+      setCurrentMatch(29);
 
       // Random pool amounts
       meronAmount=getRandomAmount(); walaAmount=getRandomAmount();
@@ -620,11 +684,7 @@
 
       updatePickedMarket(pickedMarket);
 
-      const bigBalanceEl=document.querySelector('.text-center.text-yellow-400.font-bold.text-lg.mb-2');
-      if(bigBalanceEl){
-        const match=bigBalanceEl.textContent.match(/BALANCE:\s*([\d.,]+)/i);
-        if(match) document.getElementById('header-balance').textContent=match[1];
-      }
+      // account name
       const name='AMOK';
       document.getElementById('account-name').textContent=name;
       document.getElementById('account-name-menu').textContent=name;
@@ -634,9 +694,18 @@
       btn.addEventListener('click',()=>{ menu.classList.toggle('hidden'); });
       document.addEventListener('click',(e)=>{ if(!btn.contains(e.target)&&!menu.contains(e.target)) menu.classList.add('hidden'); });
 
-      // render logrohan (3D look) with numbers
-      renderLogrohan(genLogrohan(48));
-      // NOTE: Hover lang ang nagfa-flatten; walang draw; may numbers na sa loob ng bilog.
+      /* -------- Logrohan: wire up controls -------- */
+      document.getElementById('btn-win-meron').addEventListener('click', ()=> pushResult('MERON'));
+      document.getElementById('btn-win-wala').addEventListener('click',  ()=> pushResult('WALA'));
+      document.getElementById('btn-undo').addEventListener('click',       undoResult);
+      document.getElementById('btn-clear').addEventListener('click',      clearResults);
+
+      // seed sample
+      results = ['R','B','R','R','B','B','B'];
+      renderBigRoad(results);
+
+      // show balance (center + hidden header mirror)
+      renderBalance();
     };
 
     function updatePickedMarket(mkt){
@@ -667,7 +736,7 @@
     function loadYouTubeVideo(){
       const link=document.getElementById("youtube-link").value;
       if(!link){ alert("Please paste a YouTube link."); return; }
-      let videoId=""; 
+      let videoId="";
       try{
         const url=new URL(link);
         if(url.hostname.includes("youtube.com")) videoId=url.searchParams.get("v");
