@@ -28,6 +28,9 @@ Route::get('/jackpot', function () {
     return view('jackpot');
 });
 
+Route::get('/jackpot2', function () {
+    return view('jackpot2');
+});
 
 
 Route::view('dashboard', 'dashboard')
