@@ -134,7 +134,7 @@
     /* Confetti canvas */
     #confetti { position: fixed; inset: 0; z-index: 30; pointer-events: none; }
 
-    /* Per-digit transitions para di masakit sa mata */
+    /* Per-digit transitions */
     #amount .digit{
       transition: color .18s linear, text-shadow .18s linear, filter .18s linear;
       will-change: color, text-shadow, filter;
@@ -187,7 +187,7 @@
         <span class="ml-2 inline-block w-3 h-3 rounded-full border border-cyan-300/60 shadow-neonCyan"></span>
       </div>
 
-      <p class="mt-3 text-white/60 text-sm">Maging MILYONARYO sa WILYONARYO!</p>
+      <p class="mt-3 text-white/60 text-sm">This might be your lucky day!</p>
     </section>
 
     <!-- 4 CUBES -->
@@ -330,7 +330,6 @@
     shuffleBtn.addEventListener("click", ()=>{ shuffleLetters(); });
 
     /* ===================== ULTRA-FAST COLOR CYCLERS (0.5s) ===================== */
-    // Per-digit neon sets
     const neonSets = [
       {c:"#22d3ee", glow:"0 0 8px rgba(34,211,238,.9),0 0 22px rgba(34,211,238,.55),0 0 44px rgba(34,211,238,.35)"},
       {c:"#60a5fa", glow:"0 0 8px rgba(96,165,250,.9),0 0 22px rgba(96,165,250,.55),0 0 44px rgba(96,165,250,.35)"},
@@ -342,9 +341,7 @@
       {c:"#06b6d4", glow:"0 0 8px rgba(6,182,212,.9),0 0 22px rgba(6,182,212,.55),0 0 44px rgba(6,182,212,.35)"}
     ];
 
-    // Recolor the digits (numbers only; commas stay subtle)
     function recolorDigits(){
-      // ensure wrapped
       if (!amountEl.querySelector(".digit")){
         amountEl.innerHTML = wrapDigits(amountEl.textContent);
       }
@@ -362,21 +359,15 @@
       });
     }
 
-    // Rapidly recolor cubes too
     function recolorCubes(){
       cubes.forEach(cube => applyPalette(cube, palettes[rand(palettes.length)]));
     }
 
-    // Kick off fast cyclers (every 0.5s)
     recolorDigits();
     recolorCubes();
     setInterval(recolorDigits, 500);
     setInterval(recolorCubes, 500);
-
-    // Re-wrap digits after prize updates so the color cycler keeps working
-    setInterval(()=>{
-      amountEl.innerHTML = wrapDigits(amountEl.textContent);
-    }, 800);
+    setInterval(()=>{ amountEl.innerHTML = wrapDigits(amountEl.textContent); }, 800);
 
     /* ===================== CONFETTI (canvas) ===================== */
     const cvs = document.getElementById("confetti");
@@ -388,28 +379,95 @@
     const COLORS = ["#00ffab","#00e0ff","#ffd400","#ff6b6b","#7c4dff","#22d3ee","#34d399","#f59e0b","#60a5fa","#fb7185"];
     const SHAPES = ["rect","circle","triangle"];
     const pieces = [];
-    const MAX_PIECES = 220;
+    const MAX_PIECES = 260;
 
-    function addPiece(x=Math.random()*W, y=-20, burst=false){
+    function addPiece(x = Math.random() * W, y = -20, opts = {}) {
+      const up = !!opts.up;      // true = pataas
+      const burst = !!opts.burst;
       const size = burst ? 6 + Math.random()*10 : 4 + Math.random()*6;
+
       pieces.push({
-        x, y, w:size, h:size*(0.6+Math.random()*0.6),
-        r: Math.random()*Math.PI, vr:(Math.random()*0.1+0.05)*(Math.random()<.5?-1:1),
-        vy: 1.2 + Math.random()*2.4, vx:(Math.random()-0.5)*(burst?3.2:1.8),
-        g: 0.015 + Math.random()*0.02, color: COLORS[rand(COLORS.length)],
-        shape: SHAPES[rand(SHAPES.length)], life: burst?6000:9000, born: performance.now()
+        x, y,
+        w: size,
+        h: size * (0.6 + Math.random() * 0.6),
+        r: Math.random() * Math.PI,
+        vr: (Math.random() * 0.1 + 0.05) * (Math.random() < .5 ? -1 : 1),
+        vy: up ? -(2.0 + Math.random() * 2.4) : (1.2 + Math.random() * 2.4),
+        vx: (Math.random() - 0.5) * (burst ? 3.2 : 1.8),
+        g: (up ? -1 : 1) * (0.015 + Math.random() * 0.02),
+        color: COLORS[rand(COLORS.length)],
+        shape: SHAPES[rand(SHAPES.length)],
+        life: burst ? 6000 : 9000,
+        born: performance.now(),
+        up
       });
+
       if (pieces.length > MAX_PIECES) pieces.shift();
     }
+
+    // Ambient rain (pababa pa rin for contrast)
     setInterval(()=>{ for (let i=0;i<4;i++) addPiece(); },180);
 
-    function confettiBurst(count=90){
-      const cx = W*(0.35 + Math.random()*0.3), cy = H*(0.15 + Math.random()*0.2);
-      for (let i=0;i<count;i++){
-        const angle = Math.random()*Math.PI*2, dist = Math.random()*40;
-        addPiece(cx + Math.cos(angle)*dist, cy + Math.sin(angle)*dist, true);
+    // Global upward burst (used by jackpot ticks/reset)
+    function confettiBurst(count = 90){
+      const cx = W * (0.35 + Math.random() * 0.3);
+      const cy = H * (0.70 + Math.random() * 0.2); // near bottom
+      for (let i = 0; i < count; i++){
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * 40;
+        addPiece(cx + Math.cos(angle) * dist, cy + Math.sin(angle) * dist, { up: true, burst: true });
       }
     }
+
+    // === NEW: Make EVERY cube emit upward confetti ===
+    function centerOf(el){
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width  / 2 + window.scrollX;
+      const cy = r.top  + r.height / 2 + window.scrollY;
+      return { cx, cy, r };
+    }
+
+    function burstFromElement(el, count = 80){
+      const { cx, cy, r } = centerOf(el);
+      // spawn around the bottom edge of the cube for nicer "from box" feel
+      const baseY = cy + r.height * 0.25;
+      for (let i = 0; i < count; i++){
+        const angle = Math.random() * Math.PI * 2;
+        const dist  = Math.random() * (r.width * 0.25);
+        addPiece(cx + Math.cos(angle) * dist, baseY + Math.sin(angle) * (r.height*0.15), { up: true, burst: true });
+      }
+    }
+
+    // hover/press trickle controller per cube
+    const trickleTimers = new WeakMap();
+    function startTrickle(el){
+      if (trickleTimers.get(el)) return;
+      const t = setInterval(() => {
+        const { cx, cy, r } = centerOf(el);
+        const jitterX = (Math.random() - 0.5) * r.width * 0.35;
+        addPiece(cx + jitterX, cy + r.height * 0.35, { up: true, burst: false });
+      }, 120);
+      trickleTimers.set(el, t);
+    }
+    function stopTrickle(el){
+      const t = trickleTimers.get(el);
+      if (t){ clearInterval(t); trickleTimers.delete(el); }
+    }
+
+    // Wire up all cubes
+    cubes.forEach(cube=>{
+      // Click = big burst
+      cube.addEventListener('click', () => burstFromElement(cube, 120));
+      // Hover start/stop
+      cube.addEventListener('pointerenter', () => startTrickle(cube));
+      cube.addEventListener('pointerleave', () => stopTrickle(cube));
+      // Touch fallback (short burst + auto trickle timeout)
+      cube.addEventListener('touchstart', (e) => {
+        burstFromElement(cube, 90);
+        startTrickle(cube);
+        setTimeout(()=> stopTrickle(cube), 800);
+      }, {passive:true});
+    });
 
     function drawPiece(p){
       ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
@@ -424,13 +482,23 @@
       ctx.clearRect(0,0,W,H); const now = performance.now();
       for (let i=pieces.length-1; i>=0; i--){
         const p = pieces[i];
-        p.vy += p.g; p.y += p.vy; p.x += p.vx + Math.sin((now + i*77)/900)*0.3; p.r += p.vr;
-        if (p.y > H + 40 || now - p.born > p.life){ pieces.splice(i,1); continue; }
+        p.vy += p.g;
+        p.y  += p.vy;
+        p.x  += p.vx + Math.sin((now + i*77)/900)*0.3;
+        p.r  += p.vr;
+
+        const offUp = p.up && (p.y < -40);
+        const offDown = !p.up && (p.y > H + 40);
+        if (offUp || offDown || (now - p.born > p.life)){ pieces.splice(i,1); continue; }
+
         drawPiece(p);
       }
       requestAnimationFrame(tick);
     }
-    confettiBurst(140); tick();
+
+    // Initial global upward burst, then animate
+    confettiBurst(140);
+    tick();
   </script>
 </body>
 </html>
