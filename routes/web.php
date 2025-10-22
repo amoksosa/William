@@ -24,6 +24,10 @@ Route::get('/koya', function () {
     return view('koya');
 });
 
+Route::get('/jackpot', function () {
+    return view('jackpot');
+});
+
 
 
 Route::view('dashboard', 'dashboard')
