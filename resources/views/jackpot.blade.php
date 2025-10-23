@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>3D Jackpot • Rapid Color Numbers + Colorful Cubes</title>
+  <title>3D Jackpot • Rapid Color Numbers + Colorful Cubes (Turbo Letters)</title>
 
   <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,14 +21,18 @@
             cubeSpin: { "0%": { transform: "rotateX(-10deg) rotateY(0deg)" }, "100%": { transform: "rotateX(-10deg) rotateY(360deg)" } },
             flipIn:   { "0%": { transform: "rotateX(90deg)", opacity:.0 }, "100%": { transform: "rotateX(0)", opacity:1 } },
             twinkle:  { "0%,100%": { opacity:.15 }, "50%": { opacity:.55 } },
-            sweep:    { "0%": { transform:"translateX(-30%)" }, "100%": { transform:"translateX(30%)" } }
+            sweep:    { "0%": { transform:"translateX(-30%)" }, "100%": { transform:"translateX(30%)" } },
+            bob:      { "0%": { transform:"translateY(0) rotateX(-10deg)" }, "50%": { transform:"translateY(-6px) rotateX(-10deg)" }, "100%": { transform:"translateY(0) rotateX(-10deg)" } },
+            shine:    { "0%": { transform:"translateX(-140%) rotate(12deg)" }, "100%": { transform:"translateX(140%) rotate(12deg)" } }
           },
           animation: {
             ringSpin: "ringSpin 14s linear infinite",
             cubeSpin: "cubeSpin 10s linear infinite",
             flipIn:   "flipIn .35s cubic-bezier(.2,.8,.2,1)",
             twinkle:  "twinkle 3.2s ease-in-out infinite",
-            sweep:    "sweep 18s ease-in-out infinite alternate"
+            sweep:    "sweep 18s ease-in-out infinite alternate",
+            bob:      "bob 3.6s ease-in-out infinite",
+            shine:    "shine .3s ease-out 1"
           },
           boxShadow: {
             neonCyan: "0 0 10px rgba(0,255,255,.9), 0 0 36px rgba(0,255,255,.35)"
@@ -72,40 +76,24 @@
     }
     .flip{ animation:flipIn .35s cubic-bezier(.2,.8,.2,1); transform-origin:center bottom; }
 
-    /* ===== 3D CUBE with CSS variables (recolored by JS) ===== */
+    /* ===== 3D CUBE: (kept, but not used now) ===== */
     .cube{
-      --front:#5eead4;
-      --side:#2dd4bf;
-      --top:#99f6e4;
-      --tile:#e6fffb;
-      --text:#111827;
+      --front:#5eead4; --side:#2dd4bf; --top:#99f6e4; --tile:#e6fffb; --text:#111827;
+      --bevel-hi: rgba(255,255,255,.24);
+      --bevel-lo: rgba(0,0,0,.25);
+      --wire: rgba(255,255,255,.12);
       --shadow: 0 0 22px rgba(0,0,0,.35);
-
       position:relative; width:7rem; height:7rem; transform-style:preserve-3d;
-      transition: box-shadow .35s ease;
+      transition: box-shadow .35s ease, transform .3s ease;
+      animation: bob 3.6s ease-in-out infinite;
     }
-    .face{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-      backface-visibility:hidden; border-radius:.5rem; box-shadow: var(--shadow); transition: background .28s ease;
-    }
-    .face.front{  transform:translateZ(56px); background:linear-gradient(135deg, var(--front), var(--side)); }
-    .face.back{   transform:rotateY(180deg) translateZ(56px); background:var(--side); }
-    .face.right{  transform:rotateY( 90deg) translateZ(56px); background:var(--side); }
-    .face.left{   transform:rotateY(-90deg) translateZ(56px); background:var(--side); }
-    .face.top{    transform:rotateX( 90deg) translateZ(56px); background:var(--top); border-radius:.5rem .5rem .35rem .35rem; }
-    .face.bottom{ transform:rotateX(-90deg) translateZ(56px); background:#0f172a; }
-
-    /* Small tile + letter inside each face */
-    .tile{
-      width:58%; height:58%; border-radius:.55rem;
-      display:flex; align-items:center; justify-content:center;
-      background: var(--tile); color:var(--text);
-      box-shadow: 0 6px 14px rgba(0,0,0,.25), inset 0 0 6px rgba(255,255,255,.45);
-      font-weight:800; font-size:1.8rem; line-height:1;
-      text-shadow:0 1px 0 rgba(255,255,255,.25);
-      transition: background .28s ease, color .28s ease;
+    .cube::after{
+      content:""; position:absolute; left:50%; top:100%; width:76%; height:30px; transform:translate(-50%,-6px) rotateX(75deg);
+      background: radial-gradient(50% 100% at 50% 0%, rgba(0,0,0,.35), transparent 70%);
+      filter: blur(6px);
     }
 
-    /* Background deco */
+    /* Grid + aurora bg */
     .bg-grid {
       background-image:
         linear-gradient(rgba(0, 255, 171, 0.06) 1px, transparent 1px),
@@ -138,6 +126,91 @@
     #amount .digit{
       transition: color .18s linear, text-shadow .18s linear, filter .18s linear;
       will-change: color, text-shadow, filter;
+    }
+
+    /* Hover interactivity (kept for cubes, harmless) */
+    .cube[data-active="true"]{
+      animation-play-state: paused;
+      transform: translateY(-4px) rotateX(-8deg) scale(1.02);
+      box-shadow: 0 18px 40px rgba(0,0,0,.5), 0 0 24px rgba(255,255,255,.08);
+    }
+
+    /* ===== RNG LETTER BOX (namespaced to .rng-*) ===== */
+    :root{
+      --rng-hinge:#a8aeb7; --rng-hinge-dk:#79818c;
+    }
+    @keyframes rng-spinY { to { transform: translateY(calc(-1px * var(--rng-lh) * var(--rng-steps))); } }
+
+    .rng-box { width:210px; }
+    .rng-theme{ --rng-edge:#3b2a0f; --rng-p1:#ff8a1d; --rng-p1-hi:#ffa24f; --rng-p1-lo:#e56900; }
+    .rng-theme.emerald{ --rng-edge:#0e7e5a; --rng-p1:#13c38b; --rng-p1-hi:#3ddeab; --rng-p1-lo:#0d9468; }
+    .rng-theme.blue{ --rng-edge:#1a4aa9; --rng-p1:#2f7cff; --rng-p1-hi:#66a2ff; --rng-p1-lo:#1e55c4; }
+    .rng-theme.violet{ --rng-edge:#5229a2; --rng-p1:#8a4bff; --rng-p1-hi:#a77bff; --rng-p1-lo:#5d2fb6; }
+
+    .rng-lid,
+    .rng-body,
+    .rng-rim{ border:2px solid var(--rng-edge); border-radius:16px; }
+
+    /* light transitions para smooth ang mabilis na color swaps */
+    .rng-lid,
+    .rng-body,
+    .rng-window,
+    .rng-reel,
+    .rng-rim{
+      transition: background .14s linear, box-shadow .14s linear, border-color .14s linear;
+    }
+
+    .rng-lid{
+      height:74px;
+      background: linear-gradient(180deg,var(--rng-p1-hi) 0%,var(--rng-p1) 14%,var(--rng-p1-lo) 100%);
+      box-shadow: inset 0 8px 14px rgba(255,255,255,.22), inset 0 -12px 20px rgba(0,0,0,.22), 0 18px 36px -14px rgba(0,0,0,.28);
+    }
+    .rng-lip{
+      position:absolute; inset:0.75rem; border-radius:12px;
+      background: linear-gradient(180deg,var(--rng-p1-hi) 0%,var(--rng-p1) 30%,var(--rng-p1-lo) 100%);
+      box-shadow: inset 0 8px 16px rgba(0,0,0,.40), 0 0 0 1px rgba(0,0,0,.06);
+    }
+    .rng-hinge{
+      position:absolute; bottom:-6px; width:48px; height:10px; border-radius:4px;
+      background: linear-gradient(180deg,#e7ebef 0%,var(--rng-hinge) 60%,var(--rng-hinge-dk) 100%);
+      box-shadow: inset 0 2px 3px rgba(255,255,255,.5), inset 0 -2px 3px rgba(0,0,0,.25), 0 1px 3px rgba(0,0,0,.22);
+    }
+    .rng-body{
+      margin-top:4px; padding:10px; border-radius:18px;
+      background: linear-gradient(180deg,var(--rng-p1-hi) 0%,var(--rng-p1) 14%,var(--rng-p1-lo) 100%);
+      box-shadow: inset 0 10px 18px rgba(255,255,255,.22), inset 0 -12px 18px rgba(0,0,0,.18), 0 14px 22px rgba(0,0,0,.16);
+    }
+    .rng-window{
+      border-radius:12px; height:140px; overflow:hidden; position:relative;
+      background: linear-gradient(180deg,var(--rng-p1-hi) 0%,var(--rng-p1) 30%,var(--rng-p1-lo) 100%);
+      box-shadow: inset 0 8px 16px rgba(0,0,0,.40), 0 0 0 1px rgba(0,0,0,.06);
+    }
+    .rng-midline{ position:absolute; left:0; right:0; top:50%; height:2px; transform:translateY(-50%); background:rgba(255,255,255,.3); z-index:2; }
+
+    .rng-reel{
+      position:relative; height:112px; width:124px; border-radius:999px; overflow:hidden; border:2px solid var(--rng-edge);
+      background: linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,.06) 40%,rgba(0,0,0,.10) 100%), radial-gradient(65% 50% at 50% 20%, rgba(255,255,255,.20), transparent 60%), var(--rng-p1);
+      box-shadow: inset 0 10px 18px rgba(255,255,255,.22), inset 0 -12px 18px rgba(0,0,0,.18), 0 14px 22px rgba(0,0,0,.16);
+    }
+    .rng-reel::after{
+      content:""; position:absolute; inset:0; border-radius:999px; pointer-events:none;
+      background: radial-gradient(80% 60% at 30% 20%,rgba(255,255,255,.28),transparent 55%), linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.06));
+    }
+    .rng-col{ position:absolute; left:0; right:0; top:0; display:flex; flex-direction:column; align-items:center;
+      animation: rng-spinY var(--rng-speed,2200ms) linear infinite; will-change: transform; }
+    .rng-letter{ font-weight:900; color:rgba(255,255,255,.95); font-size:1.9rem; letter-spacing:.18em; line-height: calc(1px * var(--rng-lh,44)); }
+
+    .rng-rim{ margin-top:8px; border-radius:12px; background: linear-gradient(180deg,var(--rng-p1-hi),var(--rng-p1)); }
+    .rng-rim > div { padding:.45rem 0; text-align:center; }
+    /* ---- GIF dropped in place of RNG text ---- */
+    .rng-logo{
+      height:22px;               /* tuned to match the previous text size */
+      max-width: 100%;
+      width: auto;
+      display:inline-block;
+      vertical-align: middle;
+      filter: drop-shadow(0 1px 0 rgba(0,0,0,.35));
+      transform: translateY(1px); /* micro-align vertically */
     }
   </style>
 
@@ -190,44 +263,138 @@
       <p class="mt-3 text-white/60 text-sm">This might be your lucky day!</p>
     </section>
 
-    <!-- 4 CUBES -->
-    <section class="mt-12 md:mt-16 preserve">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 place-items-center">
+    <!-- 4 BOXES: slightly higher (mt-10/md:mt-14) + synced fast color cycling -->
+    <section class="mt-10 md:mt-14 preserve">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 place-items-center">
 
-        <div class="cube animate-cubeSpin [animation-duration:11s]" data-cube>
-          <div class="face front"><div class="tile" data-letter></div></div>
-          <div class="face back"><div class="tile" data-letter></div></div>
-          <div class="face right"><div class="tile" data-letter></div></div>
-          <div class="face left"><div class="tile" data-letter></div></div>
-          <div class="face top"><div class="tile" data-letter></div></div>
-          <div class="face bottom"><div class="tile" data-letter></div></div>
+        <!-- BOX 1 -->
+        <div class="w-40 h-40 relative">
+          <div class="absolute inset-0 grid place-items-center">
+            <div class="rng-box rng-theme" style="transform:scale(.60); transform-origin: top center;">
+              <div class="relative mx-auto">
+                <div class="rng-lid"></div>
+                <div class="rng-lip"></div>
+                <div class="rng-hinge" style="left:26%"></div>
+                <div class="rng-hinge" style="right:26%"></div>
+              </div>
+              <div class="rng-body">
+                <div class="p-1.5">
+                  <div class="rng-window">
+                    <div class="rng-midline"></div>
+                    <div class="absolute inset-0 grid place-items-center">
+                      <div class="rng-reel">
+                        <!-- slowed a bit -->
+                        <div class="rng-col" style="--rng-lh:44; --rng-steps:26; --rng-speed:3600ms">
+                          <template id="rng-tpl-1"></template>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- GIF here -->
+                <div class="rng-rim"><div>
+                  <!-- UPDATE the src to your actual path -->
+                  <img class="rng-logo" src="https://i.ibb.co/6RcL2yRP/logo-ezgif-com-crop.gif" alt="WILYONARYO logo">
+                </div></div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="cube animate-cubeSpin [animation-delay:.2s]" data-cube>
-          <div class="face front"><div class="tile" data-letter></div></div>
-          <div class="face back"><div class="tile" data-letter></div></div>
-          <div class="face right"><div class="tile" data-letter></div></div>
-          <div class="face left"><div class="tile" data-letter></div></div>
-          <div class="face top"><div class="tile" data-letter></div></div>
-          <div class="face bottom"><div class="tile" data-letter></div></div>
+        <!-- BOX 2 -->
+        <div class="w-40 h-40 relative">
+          <div class="absolute inset-0 grid place-items-center">
+            <div class="rng-box rng-theme emerald" style="transform:scale(.60); transform-origin: top center;">
+              <div class="relative mx-auto">
+                <div class="rng-lid"></div>
+                <div class="rng-lip"></div>
+                <div class="rng-hinge" style="left:26%"></div>
+                <div class="rng-hinge" style="right:26%"></div>
+              </div>
+              <div class="rng-body">
+                <div class="p-1.5">
+                  <div class="rng-window">
+                    <div class="rng-midline"></div>
+                    <div class="absolute inset-0 grid place-items-center">
+                      <div class="rng-reel">
+                        <div class="rng-col" style="--rng-lh:44; --rng-steps:26; --rng-speed:3800ms">
+                          <template id="rng-tpl-2"></template>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- GIF here -->
+                <div class="rng-rim"><div>
+                  <img class="rng-logo" src="https://i.ibb.co/6RcL2yRP/logo-ezgif-com-crop.gif" alt="WILYONARYO logo">
+                </div></div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="cube animate-cubeSpin [animation-delay:.4s] [animation-duration:12s]" data-cube>
-          <div class="face front"><div class="tile" data-letter></div></div>
-          <div class="face back"><div class="tile" data-letter></div></div>
-          <div class="face right"><div class="tile" data-letter></div></div>
-          <div class="face left"><div class="tile" data-letter></div></div>
-          <div class="face top"><div class="tile" data-letter></div></div>
-          <div class="face bottom"><div class="tile" data-letter></div></div>
+        <!-- BOX 3 -->
+        <div class="w-40 h-40 relative">
+          <div class="absolute inset-0 grid place-items-center">
+            <div class="rng-box rng-theme blue" style="transform:scale(.60); transform-origin: top center;">
+              <div class="relative mx-auto">
+                <div class="rng-lid"></div>
+                <div class="rng-lip"></div>
+                <div class="rng-hinge" style="left:26%"></div>
+                <div class="rng-hinge" style="right:26%"></div>
+              </div>
+              <div class="rng-body">
+                <div class="p-1.5">
+                  <div class="rng-window">
+                    <div class="rng-midline"></div>
+                    <div class="absolute inset-0 grid place-items-center">
+                      <div class="rng-reel">
+                        <div class="rng-col" style="--rng-lh:44; --rng-steps:26; --rng-speed:3400ms">
+                          <template id="rng-tpl-3"></template>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- GIF here -->
+                <div class="rng-rim"><div>
+                  <img class="rng-logo" src="https://i.ibb.co/6RcL2yRP/logo-ezgif-com-crop.gif" alt="WILYONARYO logo">
+                </div></div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="cube animate-cubeSpin [animation-delay:.6s] [animation-duration:9.5s]" data-cube>
-          <div class="face front"><div class="tile" data-letter></div></div>
-          <div class="face back"><div class="tile" data-letter></div></div>
-          <div class="face right"><div class="tile" data-letter></div></div>
-          <div class="face left"><div class="tile" data-letter></div></div>
-          <div class="face top"><div class="tile" data-letter></div></div>
-          <div class="face bottom"><div class="tile" data-letter></div></div>
+        <!-- BOX 4 -->
+        <div class="w-40 h-40 relative">
+          <div class="absolute inset-0 grid place-items-center">
+            <div class="rng-box rng-theme violet" style="transform:scale(.60); transform-origin: top center;">
+              <div class="relative mx-auto">
+                <div class="rng-lid"></div>
+                <div class="rng-lip"></div>
+                <div class="rng-hinge" style="left:26%"></div>
+                <div class="rng-hinge" style="right:26%"></div>
+              </div>
+              <div class="rng-body">
+                <div class="p-1.5">
+                  <div class="rng-window">
+                    <div class="rng-midline"></div>
+                    <div class="absolute inset-0 grid place-items-center">
+                      <div class="rng-reel">
+                        <div class="rng-col" style="--rng-lh:44; --rng-steps:26; --rng-speed:3700ms">
+                          <template id="rng-tpl-4"></template>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- GIF here -->
+                <div class="rng-rim"><div>
+                  <img class="rng-logo" src="https://i.ibb.co/6RcL2yRP/logo-ezgif-com-crop.gif" alt="WILYONARYO logo">
+                </div></div>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -240,23 +407,13 @@
     </div>
   </main>
 
-  <!-- Controls -->
-  <div class="fixed bottom-4 right-4 z-20 flex gap-2">
-    <button id="resetBtn" class="text-xs px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/15 border border-white/15">
-      Reset ₱6,000,000
-    </button>
-    <button id="shuffleOnce" class="text-xs px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/15 border border-white/15">
-      Shuffle Now
-    </button>
-  </div>
+  <!-- Controls removed as requested -->
 
   <!-- Logic -->
   <script>
     /* ===================== JACKPOT ===================== */
     let amount = 6000000;
     const amountEl = document.getElementById("amount");
-    const resetBtn = document.getElementById("resetBtn");
-    const shuffleBtn = document.getElementById("shuffleOnce");
     const peso = n => n.toLocaleString("en-PH");
     const flip = el => { el.classList.remove("flip"); void el.offsetWidth; el.classList.add("flip"); };
 
@@ -272,9 +429,8 @@
     function tickPrize(){ amount += Math.floor(Math.random()*2000)+1; updatePrize(); confettiBurst(); }
     updatePrize();
     setInterval(tickPrize, 5000);
-    resetBtn.addEventListener("click", ()=>{ amount = 6000000; updatePrize(); confettiBurst(180); });
 
-    /* ===================== CUBES (letters + base palettes) ===================== */
+    /* ===================== CUBES (kept; unused now) ===================== */
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const cubes = Array.from(document.querySelectorAll("[data-cube]"));
     const letterTiles = Array.from(document.querySelectorAll("[data-letter]"));
@@ -308,7 +464,7 @@
         let bg = `linear-gradient(135deg, ${p.front}, ${p.side})`;
         if (isTop) bg = `linear-gradient(180deg, ${p.top}, ${p.front})`;
         if (isBottom) bg = `linear-gradient(0deg, #0b1022, #0f172a)`;
-        face.style.background = bg;
+        face.style.backgroundImage = `linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,0) 35%), ${bg}`;
       });
       cube.querySelectorAll(".tile").forEach(tile=>{
         tile.style.background = p.tile;
@@ -316,20 +472,22 @@
       });
     }
 
+    const LETTER_INTERVAL_MS = 40;
+    let letterTimer = null;
+
     function shuffleLetters(){
       letterTiles.forEach(tile=>{
         tile.textContent = randLetter();
-        tile.animate([{transform:"scale(.8)",opacity:.0},{transform:"scale(1)",opacity:1}],{duration:200,easing:"cubic-bezier(.2,.8,.2,1)"});
+        tile.style.transition = "transform 60ms ease";
+        tile.style.transform = "translateZ(1px) scale(.98)";
+        requestAnimationFrame(()=> { tile.style.transform = "translateZ(1px) scale(1)"; });
       });
     }
 
-    // initial states
     cubes.forEach(c=>applyPalette(c, palettes[rand(palettes.length)]));
     shuffleLetters();
-    setInterval(shuffleLetters, 3000);
-    shuffleBtn.addEventListener("click", ()=>{ shuffleLetters(); });
+    letterTimer = setInterval(shuffleLetters, LETTER_INTERVAL_MS);
 
-    /* ===================== ULTRA-FAST COLOR CYCLERS (0.5s) ===================== */
     const neonSets = [
       {c:"#22d3ee", glow:"0 0 8px rgba(34,211,238,.9),0 0 22px rgba(34,211,238,.55),0 0 44px rgba(34,211,238,.35)"},
       {c:"#60a5fa", glow:"0 0 8px rgba(96,165,250,.9),0 0 22px rgba(96,165,250,.55),0 0 44px rgba(96,165,250,.35)"},
@@ -337,7 +495,7 @@
       {c:"#f59e0b", glow:"0 0 8px rgba(245,158,11,.9),0 0 22px rgba(245,158,11,.55),0 0 44px rgba(245,158,11,.35)"},
       {c:"#fb7185", glow:"0 0 8px rgba(251,113,133,.9),0 0 22px rgba(251,113,133,.55),0 0 44px rgba(251,113,133,.35)"},
       {c:"#a78bfa", glow:"0 0 8px rgba(167,139,250,.9),0 0 22px rgba(167,139,250,.55),0 0 44px rgba(167,139,250,.35)"},
-      {c:"#84cc16", glow:"0 0 8px rgba(132,204,22,.9),0 0 22px rgba(132,204,22,.55),0 0 44px rgba(132,204,22,.35)"},
+      {c:"#84cc16", glow:"0 0 8px rgba(132,204,22,.9),0 0 22px rgba(132,204,22,.55)"},
       {c:"#06b6d4", glow:"0 0 8px rgba(6,182,212,.9),0 0 22px rgba(6,182,212,.55),0 0 44px rgba(6,182,212,.35)"}
     ];
 
@@ -359,9 +517,7 @@
       });
     }
 
-    function recolorCubes(){
-      cubes.forEach(cube => applyPalette(cube, palettes[rand(palettes.length)]));
-    }
+    function recolorCubes(){ cubes.forEach(cube => applyPalette(cube, palettes[rand(palettes.length)])); }
 
     recolorDigits();
     recolorCubes();
@@ -382,7 +538,7 @@
     const MAX_PIECES = 260;
 
     function addPiece(x = Math.random() * W, y = -20, opts = {}) {
-      const up = !!opts.up;      // true = pataas
+      const up = !!opts.up;
       const burst = !!opts.burst;
       const size = burst ? 6 + Math.random()*10 : 4 + Math.random()*6;
 
@@ -401,17 +557,15 @@
         born: performance.now(),
         up
       });
-
       if (pieces.length > MAX_PIECES) pieces.shift();
     }
 
-    // Ambient rain (pababa pa rin for contrast)
+    // Ambient rain
     setInterval(()=>{ for (let i=0;i<4;i++) addPiece(); },180);
 
-    // Global upward burst (used by jackpot ticks/reset)
     function confettiBurst(count = 90){
       const cx = W * (0.35 + Math.random() * 0.3);
-      const cy = H * (0.70 + Math.random() * 0.2); // near bottom
+      const cy = H * (0.70 + Math.random() * 0.2);
       for (let i = 0; i < count; i++){
         const angle = Math.random() * Math.PI * 2;
         const dist = Math.random() * 40;
@@ -419,7 +573,6 @@
       }
     }
 
-    // === NEW: Make EVERY cube emit upward confetti ===
     function centerOf(el){
       const r = el.getBoundingClientRect();
       const cx = r.left + r.width  / 2 + window.scrollX;
@@ -429,7 +582,6 @@
 
     function burstFromElement(el, count = 80){
       const { cx, cy, r } = centerOf(el);
-      // spawn around the bottom edge of the cube for nicer "from box" feel
       const baseY = cy + r.height * 0.25;
       for (let i = 0; i < count; i++){
         const angle = Math.random() * Math.PI * 2;
@@ -438,7 +590,6 @@
       }
     }
 
-    // hover/press trickle controller per cube
     const trickleTimers = new WeakMap();
     function startTrickle(el){
       if (trickleTimers.get(el)) return;
@@ -454,28 +605,32 @@
       if (t){ clearInterval(t); trickleTimers.delete(el); }
     }
 
-    // Wire up all cubes
+    const scene = document.querySelector('.scene');
+    function tiltCube(e, cube){
+      const rect = cube.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) / rect.width;
+      const my = (e.clientY - rect.top)  / rect.height;
+      const rx = (my - 0.5) * -14;
+      const ry = (mx - 0.5) * 18;
+      cube.style.transform = `translateY(-2px) rotateX(${rx - 10}deg) rotateY(${ry}deg) scale(1.02)`;
+    }
+
     cubes.forEach(cube=>{
-      // Click = big burst
-      cube.addEventListener('click', () => burstFromElement(cube, 120));
-      // Hover start/stop
-      cube.addEventListener('pointerenter', () => startTrickle(cube));
-      cube.addEventListener('pointerleave', () => stopTrickle(cube));
-      // Touch fallback (short burst + auto trickle timeout)
-      cube.addEventListener('touchstart', (e) => {
-        burstFromElement(cube, 90);
-        startTrickle(cube);
-        setTimeout(()=> stopTrickle(cube), 800);
-      }, {passive:true});
+      cube.addEventListener('click', () => { burstFromElement(cube, 120); });
+      cube.addEventListener('pointerenter', () => { cube.dataset.active = "true"; startTrickle(cube); });
+      cube.addEventListener('pointermove', (e) => tiltCube(e, cube));
+      cube.addEventListener('pointerleave', () => { stopTrickle(cube); cube.dataset.active = "false"; cube.style.transform = ""; });
+      cube.addEventListener('touchstart', (e) => { burstFromElement(cube, 90); startTrickle(cube); setTimeout(()=> stopTrickle(cube), 800); }, {passive:true});
     });
 
     function drawPiece(p){
-      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+      const {x,y,w,h,r:rot} = p;
+      ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
       ctx.fillStyle = p.color;
-      if (p.shape==="rect") ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
-      else if (p.shape==="circle"){ ctx.beginPath(); ctx.arc(0,0,p.w*0.45,0,Math.PI*2); ctx.fill(); }
-      else { ctx.beginPath(); ctx.moveTo(0,-p.h*0.6); ctx.lineTo(p.w*0.6,p.h*0.6); ctx.lineTo(-p.w*0.6,p.h*0.6); ctx.closePath(); ctx.fill(); }
-      ctx.globalAlpha=.18; ctx.fillStyle="#fff"; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h*0.25); ctx.restore(); ctx.globalAlpha=1;
+      if (p.shape==="rect") ctx.fillRect(-w/2,-h/2,w,h);
+      else if (p.shape==="circle"){ ctx.beginPath(); ctx.arc(0,0,w*0.45,0,Math.PI*2); ctx.fill(); }
+      else { ctx.beginPath(); ctx.moveTo(0,-h*0.6); ctx.lineTo(w*0.6,h*0.6); ctx.lineTo(-w*0.6,h*0.6); ctx.closePath(); ctx.fill(); }
+      ctx.globalAlpha=.18; ctx.fillStyle="#fff"; ctx.fillRect(-w/2,-h/2,w,h*0.25); ctx.restore(); ctx.globalAlpha=1;
     }
 
     function tick(){
@@ -496,9 +651,63 @@
       requestAnimationFrame(tick);
     }
 
-    // Initial global upward burst, then animate
     confettiBurst(140);
     tick();
+
+    /* ===================== RNG BOX: build A..Z for each reel ===================== */
+    (function(){
+      const alpha = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
+      function buildFrag(){
+        const f = document.createDocumentFragment();
+        const mk = ch => { const s = document.createElement('span'); s.className = 'rng-letter'; s.textContent = ch; return s; };
+        for(let r=0;r<2;r++) alpha.forEach(ch => f.appendChild(mk(ch)));
+        return f;
+      }
+      ['rng-tpl-1','rng-tpl-2','rng-tpl-3','rng-tpl-4'].forEach(id=>{
+        const t = document.getElementById(id);
+        if (t) t.replaceWith(buildFrag());
+      });
+    })();
+
+    /* ===================== RNG BOX: synced fast color cycler ===================== */
+    (function(){
+      const boxes = Array.from(document.querySelectorAll('.rng-box'));
+      if (!boxes.length) return;
+
+      // Prebaked vivid palettes (edge + primary gradient stops)
+      const boxPalettes = [
+        {edge:'#0b6b6b', p1:'#06b6d4', hi:'#36d7ee', lo:'#0587a1'}, // cyan
+        {edge:'#0a6a4b', p1:'#10b981', hi:'#39d9a4', lo:'#0b8a5f'}, // emerald
+        {edge:'#163a8a', p1:'#3b82f6', hi:'#78a8ff', lo:'#2159c9'}, // blue
+        {edge:'#3e2aa1', p1:'#6366f1', hi:'#9ea3ff', lo:'#3f41c9'}, // indigo
+        {edge:'#5a2698', p1:'#8b5cf6', hi:'#b893ff', lo:'#6227cc'}, // violet
+        {edge:'#7a1a67', p1:'#f472b6', hi:'#ffa1d4', lo:'#d14e99'}, // pink
+        {edge:'#6e1a1a', p1:'#ef4444', hi:'#ff7a7a', lo:'#c52f2f'}, // red
+        {edge:'#7a3b0f', p1:'#f59e0b', hi:'#ffcc66', lo:'#c97507'}, // orange
+        {edge:'#7a6a0f', p1:'#eab308', hi:'#ffe266', lo:'#b49206'}, // yellow
+        {edge:'#1f6a1a', p1:'#22c55e', hi:'#64e08e', lo:'#15803d'}  // green
+      ];
+
+      function applyPaletteToAll(p){
+        boxes.forEach(el=>{
+          el.style.setProperty('--rng-edge', p.edge);
+          el.style.setProperty('--rng-p1',   p.p1);
+          el.style.setProperty('--rng-p1-hi',p.hi);
+          el.style.setProperty('--rng-p1-lo',p.lo);
+        });
+      }
+
+      // Start in sync
+      let idx = 0;
+      applyPaletteToAll(boxPalettes[idx]);
+
+      // Fast cycle (mabilis): every 220ms; sabay-sabay & same palette
+      const SPEED_MS = 220;
+      setInterval(()=>{
+        idx = (idx + 1) % boxPalettes.length;
+        applyPaletteToAll(boxPalettes[idx]);
+      }, SPEED_MS);
+    })();
   </script>
 </body>
 </html>

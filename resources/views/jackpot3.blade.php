@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>3D Jackpot • Turbo Letters • Rainbow Background</title>
+  <title>3D Jackpot • Turbo Letters • Rainbow BG + Synced Random Cubes</title>
 
   <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,33 +13,25 @@
         extend: {
           fontFamily: { display: ["Poppins","ui-sans-serif","system-ui"] },
           backgroundImage: {
-            /* neutral starfield so rainbow blends nicely */
             starfield:
               "radial-gradient(1200px 600px at 50% 20%, rgba(255,255,255,.08), rgba(0,0,0,0)), radial-gradient(900px 460px at 50% 35%, rgba(255,255,255,.06), rgba(0,0,0,0))",
           },
           keyframes: {
             ringSpin: { "0%": { transform: "rotateY(0) rotateX(25deg)" }, "100%": { transform: "rotateY(360deg) rotateX(25deg)" } },
-            cubeSpin: { "0%": { transform: "rotateX(-10deg) rotateY(0deg)" }, "100%": { transform: "rotateX(-10deg) rotateY(360deg)" } },
             flipIn:   { "0%": { transform: "rotateX(90deg)", opacity:.0 }, "100%": { transform: "rotateX(0)", opacity:1 } },
             twinkle:  { "0%,100%": { opacity:.15 }, "50%": { opacity:.55 } },
-            sweep:    { "0%": { transform:"translateX(-30%)" }, "100%": { transform:"translateX(30%)" } },
             bob:      { "0%": { transform:"translateY(0) rotateX(-10deg)" }, "50%": { transform:"translateY(-6px) rotateX(-10deg)" }, "100%": { transform:"translateY(0) rotateX(-10deg)" } },
             shine:    { "0%": { transform:"translateX(-140%) rotate(12deg)" }, "100%": { transform:"translateX(140%) rotate(12deg)" } },
-
-            /* Rainbow engines */
+            /* Rainbow BG engines */
             spin360:  { "0%": { transform:"rotate(0deg)" }, "100%": { transform:"rotate(360deg)" } },
             flow:     { "0%": { backgroundPosition:"0% 50%" }, "100%": { backgroundPosition:"400% 50%" } }
           },
           animation: {
             ringSpin: "ringSpin 14s linear infinite",
-            cubeSpin: "cubeSpin 10s linear infinite",
             flipIn:   "flipIn .35s cubic-bezier(.2,.8,.2,1)",
             twinkle:  "twinkle 3.2s ease-in-out infinite",
-            sweep:    "sweep 18s ease-in-out infinite alternate",
             bob:      "bob 3.6s ease-in-out infinite",
             shine:    "shine .3s ease-out 1",
-
-            /* Fast rainbow; tweak durations if you want it crazier */
             rainbowSpin: "spin360 4s linear infinite",
             rainbowFlow: "flow 2.2s linear infinite"
           },
@@ -60,14 +52,7 @@
     .scene{ perspective:1200px; }
     .preserve{ transform-style:preserve-3d; }
 
-    /* Tilted ring (white base so it takes rainbow tint via blend) */
-    .ring3d{
-      position:relative; border:3px solid rgba(255,255,255,.35); border-radius:999px;
-      box-shadow:0 0 18px rgba(255,255,255,.5), inset 0 0 18px rgba(255,255,255,.28);
-      background:
-        radial-gradient(120% 200% at 50% 60%, rgba(255,255,255,.22), rgba(255,255,255,0) 60%),
-        radial-gradient(120% 200% at 50% 40%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%);
-    }
+   
 
     /* Prize pill depth */
     .pill3d{
@@ -80,7 +65,7 @@
     }
     .flip{ animation:flipIn .35s cubic-bezier(.2,.8,.2,1); transform-origin:center bottom; }
 
-    /* ===== 3D CUBE: Deluxe styling ===== */
+    /* ===== 3D CUBE ===== */
     .cube{
       --front:#5eead4; --side:#2dd4bf; --top:#99f6e4; --tile:#e6fffb; --text:#111827;
       --bevel-hi: rgba(255,255,255,.24);
@@ -93,8 +78,7 @@
     }
     .cube::after{
       content:""; position:absolute; left:50%; top:100%; width:76%; height:30px; transform:translate(-50%,-6px) rotateX(75deg);
-      background: radial-gradient(50% 100% at 50% 0%, rgba(0,0,0,.35), transparent 70%);
-      filter: blur(6px);
+      background: radial-gradient(50% 100% at 50% 0%, rgba(0,0,0,.35), transparent 70%); filter: blur(6px);
     }
 
     .face{
@@ -148,7 +132,7 @@
     }
     .tile.sweep-on::after{ opacity:.55; animation: shine .3s ease-out 1; }
 
-    /* Star/grid/aurora base (kept subtle; rainbow layers do the color) */
+    /* Star/grid/aurora base */
     .bg-grid {
       background-image:
         linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
@@ -164,10 +148,8 @@
       filter: blur(0.6px);
     }
 
-    /* === RAINBOW LAYERS === */
+    /* === RAINBOW BACKGROUND STACK === */
     .rainbow-stack { position:fixed; inset:0; pointer-events:none; z-index:0; }
-
-    /* Layer A: pure rainbow wheel via conic-gradient, rotating */
     .rainbow-stack::before{
       content:""; position:absolute; inset:-20%;
       background:
@@ -181,8 +163,6 @@
       opacity:.55;
       border-radius:50%;
     }
-
-    /* Layer B: flowing linear rainbow, sliding horizontally */
     .rainbow-stack::after{
       content:""; position:absolute; inset:-10%;
       background:
@@ -225,13 +205,13 @@
 
 <body class="min-h-dvh bg-[#070b16] bg-starfield text-white font-display overflow-hidden relative">
 
-  <!-- Confetti layer -->
+  <!-- Confetti -->
   <canvas id="confetti"></canvas>
 
   <!-- RAINBOW BACKGROUND STACK -->
   <div class="rainbow-stack"></div>
 
-  <!-- Decorative background layers (white base, will pick up rainbow through screen blend) -->
+  <!-- Subtle white decor so rainbow shows via blend -->
   <div class="pointer-events-none fixed inset-0 -z-0">
     <div class="absolute inset-0 mix-blend-screen">
       <div class="absolute top-10 left-[12%] size-2 rounded-full bg-white/70 animate-twinkle"></div>
@@ -272,7 +252,7 @@
     <section class="mt-12 md:mt-16 preserve">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6 place-items-center">
 
-        <div class="cube animate-cubeSpin [animation-duration:11s]" data-cube>
+        <div class="cube" data-cube>
           <div class="face front"><div class="tile" data-letter></div></div>
           <div class="face back"><div class="tile" data-letter></div></div>
           <div class="face right"><div class="tile" data-letter></div></div>
@@ -281,7 +261,7 @@
           <div class="face bottom"><div class="tile" data-letter></div></div>
         </div>
 
-        <div class="cube animate-cubeSpin [animation-delay:.2s]" data-cube>
+        <div class="cube" data-cube>
           <div class="face front"><div class="tile" data-letter></div></div>
           <div class="face back"><div class="tile" data-letter></div></div>
           <div class="face right"><div class="tile" data-letter></div></div>
@@ -290,7 +270,7 @@
           <div class="face bottom"><div class="tile" data-letter></div></div>
         </div>
 
-        <div class="cube animate-cubeSpin [animation-delay:.4s] [animation-duration:12s]" data-cube>
+        <div class="cube" data-cube>
           <div class="face front"><div class="tile" data-letter></div></div>
           <div class="face back"><div class="tile" data-letter></div></div>
           <div class="face right"><div class="tile" data-letter></div></div>
@@ -299,7 +279,7 @@
           <div class="face bottom"><div class="tile" data-letter></div></div>
         </div>
 
-        <div class="cube animate-cubeSpin [animation-delay:.6s] [animation-duration:9.5s]" data-cube>
+        <div class="cube" data-cube>
           <div class="face front"><div class="tile" data-letter></div></div>
           <div class="face back"><div class="tile" data-letter></div></div>
           <div class="face right"><div class="tile" data-letter></div></div>
@@ -330,7 +310,12 @@
 
   <!-- Logic -->
   <script>
-    /* ===================== JACKPOT ===================== */
+    /* ===================== HELPERS ===================== */
+    const hsl = (h,s,l,a=1)=>`hsla(${h}, ${s}%, ${l}%, ${a})`;
+    const rand = n => Math.floor(Math.random()*n);
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    /* ===================== JACKPOT (digits stay static color) ===================== */
     let amount = 6000000;
     const amountEl = document.getElementById("amount");
     const resetBtn = document.getElementById("resetBtn");
@@ -350,26 +335,37 @@
     setInterval(tickPrize, 5000);
     resetBtn.addEventListener("click", ()=>{ amount = 6000000; updatePrize(); confettiBurst(180); });
 
-    /* ===================== CUBES (letters + base palettes) ===================== */
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const cubes = Array.from(document.querySelectorAll("[data-cube]"));
+    /* ===================== LETTERS ===================== */
     const letterTiles = Array.from(document.querySelectorAll("[data-letter]"));
+    const LETTER_INTERVAL_MS = 35;
+    function randLetter(){ return letters[rand(letters.length)]; }
+    function shuffleLetters(){
+      letterTiles.forEach(tile=>{
+        tile.textContent = randLetter();
+        tile.style.transition = "transform 60ms ease";
+        tile.style.transform = "translateZ(1px) scale(.98)";
+        requestAnimationFrame(()=> { tile.style.transform = "translateZ(1px) scale(1)"; });
+      });
+    }
+    shuffleLetters();
+    setInterval(shuffleLetters, LETTER_INTERVAL_MS);
+    shuffleBtn.addEventListener("click", shuffleLetters);
 
-    const palettes = [
-      {front:"#22d3ee", side:"#06b6d4", top:"#a5f3fc", tile:"#e6fdff", text:"#071a1d"},
-      {front:"#34d399", side:"#10b981", top:"#bbf7d0", tile:"#eafff3", text:"#062016"},
-      {front:"#60a5fa", side:"#3b82f6", top:"#93c5fd", tile:"#e8f1ff", text:"#0b1220"},
-      {front:"#f472b6", side:"#e879f9", top:"#f5d0fe", tile:"#fff0fb", text:"#280a22"},
-      {front:"#f59e0b", side:"#ef4444", top:"#fde68a", tile:"#fff7e5", text:"#1a1305"},
-      {front:"#a78bfa", side:"#6366f1", top:"#ddd6fe", tile:"#f1efff", text:"#0f1022"},
-      {front:"#fb7185", side:"#f43f5e", top:"#fecdd3", tile:"#fff1f3", text:"#22060a"},
-      {front:"#84cc16", side:"#22c55e", top:"#d9f99d", tile:"#f3ffe6", text:"#0d1b09"},
-      {front:"#06b6d4", side:"#0ea5e9", top:"#bae6fd", tile:"#e8f7ff", text:"#07141c"},
-      {front:"#f97316", side:"#fb7185", top:"#fed7aa", tile:"#fff1e6", text:"#2a0f06"}
-    ];
+    /* ===================== CUBES: RANDOM but SYNCHRONIZED ===================== */
+    const cubes = Array.from(document.querySelectorAll("[data-cube]"));
 
-    const rand = n => Math.floor(Math.random()*n);
-    const randLetter = () => letters[rand(letters.length)];
+    // Speed of color changes (smaller = mas mabilis)
+    const SPEED_MS = 140;
+
+    function paletteFromHue(h){
+      // Single hue, varied lightness for cube faces/tiles
+      const front = hsl(h, 86, 58);
+      const side  = hsl(h, 86, 48);
+      const top   = hsl(h, 86, 72);
+      const tile  = hsl(h, 92, 96, 0.98);
+      const text  = "#0b1220";
+      return { front, side, top, tile, text };
+    }
 
     function applyPalette(cube, p){
       cube.style.setProperty("--front", p.front);
@@ -391,65 +387,31 @@
       });
     }
 
-    /* ===== TURBO SHUFFLE ===== */
-    const LETTER_INTERVAL_MS = 40; // tweak to 20 for crazier speed
-    function shuffleLetters(){
-      letterTiles.forEach(tile=>{
-        tile.textContent = randLetter();
-        tile.style.transition = "transform 60ms ease";
-        tile.style.transform = "translateZ(1px) scale(.98)";
-        requestAnimationFrame(()=> { tile.style.transform = "translateZ(1px) scale(1)"; });
-      });
+    function recolorCubesWithHue(h){
+      const p = paletteFromHue(h);
+      cubes.forEach(cube => applyPalette(cube, p));
     }
 
-    cubes.forEach(c=>applyPalette(c, palettes[rand(palettes.length)]));
-    shuffleLetters();
-    let letterTimer = setInterval(shuffleLetters, LETTER_INTERVAL_MS);
-    shuffleBtn.addEventListener("click", shuffleLetters);
-
-    /* ===== DIGITS + CUBE RECOLOR ===== */
-    const neonSets = [
-      {c:"#22d3ee", glow:"0 0 8px rgba(34,211,238,.9),0 0 22px rgba(34,211,238,.55),0 0 44px rgba(34,211,238,.35)"},
-      {c:"#60a5fa", glow:"0 0 8px rgba(96,165,250,.9),0 0 22px rgba(96,165,250,.55),0 0 44px rgba(96,165,250,.35)"},
-      {c:"#34d399", glow:"0 0 8px rgba(52,211,153,.9),0 0 22px rgba(52,211,153,.55),0 0 44px rgba(52,211,153,.35)"},
-      {c:"#f59e0b", glow:"0 0 8px rgba(245,158,11,.9),0 0 22px rgba(245,158,11,.55),0 0 44px rgba(245,158,11,.35)"},
-      {c:"#fb7185", glow:"0 0 8px rgba(251,113,133,.9),0 0 22px rgba(251,113,133,.55),0 0 44px rgba(251,113,133,.35)"},
-      {c:"#a78bfa", glow:"0 0 8px rgba(167,139,250,.9),0 0 22px rgba(167,139,250,.55),0 0 44px rgba(167,139,250,.35)"},
-      {c:"#84cc16", glow:"0 0 8px rgba(132,204,22,.9),0 0 22px rgba(132,204,22,.55)"},
-      {c:"#06b6d4", glow:"0 0 8px rgba(6,182,212,.9),0 0 22px rgba(6,182,212,.55),0 0 44px rgba(6,182,212,.35)"}
-    ];
-
-    function recolorDigits(){
-      if (!amountEl.querySelector(".digit")){
-        amountEl.innerHTML = wrapDigits(amountEl.textContent);
-      }
-      amountEl.querySelectorAll(".digit").forEach(d=>{
-        if (d.textContent === ","){
-          d.style.color = "rgba(255,255,255,.75)";
-          d.style.textShadow = "0 0 4px rgba(255,255,255,.25)";
-          d.style.filter = "none";
-          return;
-        }
-        const pick = neonSets[rand(neonSets.length)];
-        d.style.color = pick.c;
-        d.style.textShadow = pick.glow;
-        d.style.filter = "drop-shadow(0 2px 6px rgba(0,0,0,.35))";
-      });
+    function randomHue(){
+      // bias away from very dark reds if you want, but full 0..359 is fine
+      return Math.floor(Math.random() * 360);
     }
-    function recolorCubes(){ cubes.forEach(cube => applyPalette(cube, palettes[rand(palettes.length)])); }
 
-    recolorDigits();
-    recolorCubes();
-    setInterval(recolorDigits, 500);
-    setInterval(recolorCubes, 500);
-    setInterval(()=>{ amountEl.innerHTML = wrapDigits(amountEl.textContent); }, 800);
+    // Initial paint
+    recolorCubesWithHue(randomHue());
 
-    /* ===================== CONFETTI ===================== */
+    // Change to a NEW random hue every tick, synchronized across all cubes
+    setInterval(() => {
+      const H = randomHue();
+      recolorCubesWithHue(H);
+    }, SPEED_MS);
+
+    /* ===================== CONFETTI (fixed palette) ===================== */
     const cvs = document.getElementById("confetti");
     const ctx = cvs.getContext("2d");
     let W = cvs.width = innerWidth;
-    let H = cvs.height = innerHeight;
-    addEventListener("resize", () => { W = cvs.width = innerWidth; H = cvs.height = innerHeight; });
+    let Hh = cvs.height = innerHeight;
+    addEventListener("resize", () => { W = cvs.width = innerWidth; Hh = cvs.height = innerHeight; });
 
     const COLORS = ["#00e5ff","#ff00b3","#ffe600","#ff6b6b","#7c4dff","#22d3ee","#34d399","#f59e0b","#60a5fa","#fb7185"];
     const SHAPES = ["rect","circle","triangle"];
@@ -480,7 +442,7 @@
 
     function confettiBurst(count = 90){
       const cx = W * (0.35 + Math.random() * 0.3);
-      const cy = H * (0.70 + Math.random() * 0.2);
+      const cy = Hh * (0.70 + Math.random() * 0.2);
       for (let i = 0; i < count; i++){
         const angle = Math.random() * Math.PI * 2;
         const dist = Math.random() * 40;
@@ -548,11 +510,11 @@
     }
 
     function tick(){
-      ctx.clearRect(0,0,W,H); const now = performance.now();
+      ctx.clearRect(0,0,W,Hh); const now = performance.now();
       for (let i=pieces.length-1; i>=0; i--){
         const p = pieces[i];
         p.vy += p.g; p.y += p.vy; p.x += p.vx + Math.sin((now + i*77)/900)*0.3; p.r += p.vr;
-        const offUp = p.up && (p.y < -40), offDown = !p.up && (p.y > H + 40);
+        const offUp = p.up && (p.y < -40), offDown = !p.up && (p.y > Hh + 40);
         if (offUp || offDown || (now - p.born > p.life)){ pieces.splice(i,1); continue; }
         drawPiece(p);
       }

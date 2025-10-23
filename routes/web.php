@@ -32,6 +32,11 @@ Route::get('/jackpot2', function () {
     return view('jackpot2');
 });
 
+Route::get('/jackpot3', function () {
+    return view('jackpot3');
+});
+
+
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
