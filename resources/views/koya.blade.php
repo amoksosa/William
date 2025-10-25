@@ -478,7 +478,7 @@
       const r = parseInt(hex.slice(0,2),16)/255, g = parseInt(hex.slice(2,4),16)/255, b = parseInt(hex.slice(4,6),16)/255;
       const max=Math.max(r,g,b), min=Math.min(r,g,b); let h,s,l=(max+min)/2;
       if(max===min){ h=s=0; } else { const d=max-min; s=l>0.5? d/(2-max-min): d/(max+min);
-        switch(max){ case r: h=(g-b)/d+(g<b?6:0); break; case g: h=(b-r)/d+2; break; case b: h=(r-g)/d+4; break; } h/=6; }
+        switch(max){ case r: h=(g-b)/d+(g<b?6:0); break; case g: h=(b-r)/d+2; break; case b: h=(r-g)/d+4; } h/=6; }
       return {h,s,l};
     }
     function hslToHex(h,s,l){
@@ -617,7 +617,7 @@
     requestAnimationFrame(loop);
   </script>
 
-  <!-- Three.js logic (unchanged) -->
+  <!-- Three.js logic (unchanged except WIDER BORDER ON FACE TILE) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     let scene, camera, renderer, cubes = [], selectedLetters = [], currentCubeIndex = 0;
@@ -732,7 +732,8 @@
         const texture = new THREE.CanvasTexture(canvas);
         const textMaterial = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
 
-        const textSize = cubeSize * 0.8;
+        /* ↓↓↓ ONLY CHANGE: make the white face tile a bit smaller to widen the colored border */
+        const textSize = cubeSize * 0.74;   /* was 0.80 */
         const textGeometry = new THREE.PlaneGeometry(textSize, textSize);
         const textMesh = new THREE.Mesh(textGeometry, textMaterial);
         textMesh.position.z = cubeSize / 2 + 0.01;
